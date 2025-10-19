@@ -1,0 +1,264 @@
+//Database Name=Evangadi-forum-db
+//table (Users,Questions ,  Answers)
+
+//Create users table 
+
+CREATE TABLE IF NOT EXISTS users (
+    userid INT NOT NULL AUTO_INCREMENT,
+    username VARCHAR(20) NOT NULL,
+    firstname VARCHAR(20) NOT NULL,
+    lastname VARCHAR(20) NOT NULL,
+    email VARCHAR(40) NOT NULL,
+    user_password VARCHAR(100) NOT NULL,
+    PRIMARY KEY (userid)
+);
+//Create Questions table 
+
+CREATE TABLE IF NOT EXISTS questions (
+    id INT NOT NULL AUTO_INCREMENT,
+    questionid VARCHAR(100) NOT NULL UNIQUE ,
+    userid INT NOT NULL,
+    created_at date,
+    title VARCHAR(255) NOT NULL,
+    tag VARCHAR(50),
+    description TEXT NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (userid) REFERENCES users(userid)
+);
+
+//Create Answers table 
+
+CREATE TABLE IF NOT EXISTS answers (
+    answerid INT NOT NULL AUTO_INCREMENT,
+    userid INT NOT NULL,
+    questionid VARCHAR(100) NOT NULL,
+    answer TEXT NOT NULL,
+    PRIMARY KEY (answerid),
+    FOREIGN KEY (questionid) REFERENCES questions(questionid),
+    FOREIGN KEY (userid) REFERENCES users(userid)
+);
+
+
+//Database cridentials 
+//username=Evangadi
+//user_password=Evangadi@2025!
+
+
+
+
+Question--4 ===> Samson-
+Answer---1====> Hail-
+Login--3======> Tsion-
+Register--5====> Abubaker
+Home---2=====> Mubarek-
+
+Header=====>Samuel 
+Footer======>Samuel 
+
+
+About
+Trello
+Usecontext
+Router
+Git managmnet===Gizachew
+authmiddleware
+Database
+Axios
+.ENV
+
+
+index=0        array length 1
+[{username,firstname,lastname,email, user_password}]
+
+
+Abebe=5
+
+efjfj
+
+
+import React, { useContext, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { Appstate } from "./Pages/Appstate";
+
+const ProtectedRoute = ({ children }) => {
+  const { user } = useContext(Appstate);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    //  If no token or no user, send to login page
+    if (!token || !user?.username) {
+      navigate("/login");
+    }
+  }, [user, navigate]);
+
+  //  If user is logged in, show the protected content
+  return user ? children : null;
+};
+
+export default ProtectedRoute;
+
+
+Answerpage JSX
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import axiosInstance from "../../axiosconfig";
+import "./AnswerPage.css";
+import { FaUserCircle } from "react-icons/fa";
+
+const AnswerPage = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [question, setQuestion] = useState(null);
+  const [answers, setAnswers] = useState([]);
+  const [newAnswer, setNewAnswer] = useState("");
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true); //  auth loading state
+
+  //  Protect route first
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      navigate("/login");
+    } else {
+      setIsCheckingAuth(false); // allow page to load
+    }
+  }, [navigate]);
+
+  //  Don't render anything until auth check finishes
+  if (isCheckingAuth) {
+    return <p>Checking authorization...</p>;
+  }
+
+  // Fetch question + answers
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return; // double safety
+
+        const qRes = await axiosInstance.get(`/question/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setQuestion(qRes.data.data);
+
+        const aRes = await axiosInstance.get(`/answer/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setAnswers(Array.isArray(aRes.data.data) ? aRes.data.data : []);
+      } catch (err) {
+        console.error("Error fetching data:", err);
+        setError("Failed to load answers");
+      }
+    };
+    fetchData();
+  }, [id]);
+
+  // Post a new answer
+  const handlePostAnswer = async (e) => {
+    e.preventDefault();
+    setMessage("");
+    setError("");
+
+    if (!newAnswer.trim()) {
+      setError("Answer field is required");
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate("/login");
+        return;
+      }
+
+      const res = await axiosInstance.post(
+        "/answer",
+        { questionid: id, answer: newAnswer },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setAnswers((prev) => [res.data.data, ...prev]);
+      setNewAnswer("");
+      setMessage(" Answer posted successfully!");
+      setTimeout(() => setMessage(""), 3000);
+    } catch (err) {
+      console.error("Error posting answer:", err);
+      setError(" Failed to post answer");
+    }
+  };
+
+  return (
+    <div className="answer-container">
+      {question && (
+        <div className="question-box">
+          <h3>QUESTION</h3>
+          <h4 className="question-title">{question.title}</h4>
+          <p className="question-description">{question.description}</p>
+        </div>
+      )}
+
+      <h3 className="answers-header">
+        Answer From The Community ({answers.length})
+      </h3>
+
+      {message && <p style={{ color: "green", fontWeight: "bold" }}>{message}</p>}
+      {error && <p style={{ color: "red" }}>{error}</p>}
+
+      <div className="answers-list">
+        {answers.length > 0 ? (
+          answers.map((ans) => (
+            <div key={ans.answerid} className="answer-card">
+              <FaUserCircle className="user-icon" />
+              <div className="answer-content">
+                <span className="username">{ans.username}</span>
+                <p>{ans.answer}</p>
+              </div>
+            </div>
+          ))
+        ) : (
+          <p>No answers yet. Be the first to answer!</p>
+        )}
+      </div>
+
+      <div className="answer-form">
+        <textarea
+          placeholder="Your answer ..."
+          value={newAnswer}
+          onChange={(e) => setNewAnswer(e.target.value)}
+        />
+        <button type="button" onClick={handlePostAnswer}>
+          Post Answer
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default AnswerPage;
+
+
+
+
+
+math.random()
+[0-1)=0-0.9999999999
+
+
+
+ALTER TABLE questions ADD is_deleted TINYINT(1) DEFAULT 0;
+ALTER TABLE answers ADD is_deleted TINYINT(1) DEFAULT 0;
+
+
+
+
+
+
+
+
+
+
+	

@@ -1,0 +1,157 @@
+.answer-page {
+    max-width: 800px;
+    margin: 20px auto;
+    font-family: Arial, sans-serif;
+}
+
+.question-section {
+    margin-bottom: 20px;
+}
+
+.question-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+}
+
+.question-text {
+    font-size: 16px;
+    margin-top: 5px;
+}
+
+.answers-section h3 {
+    margin: 15px 0;
+}
+
+.answer-card {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    background: #f7f7f7;
+    border-radius: 5px;
+    padding: 10px;
+    margin: 10px 0;
+}
+
+.avatar {
+    font-size: 28px;
+}
+
+.answer-text {
+    font-size: 15px;
+    margin: 0;
+}
+
+.answer-user {
+    color: #666;
+}
+
+.answer-form {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.answer-form textarea {
+    min-height: 100px;
+    padding: 10px;
+    resize: vertical;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+}
+
+.answer-form button {
+    width: 120px;
+    padding: 8px;
+    border: none;
+    background-color: #0066cc;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.answer-form button:hover {
+    background-color: #004c99;
+}
+
+.answer-card {
+    display: flex;
+    align-items: flex-start;
+    background: #fff;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 10px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Bigger avatar */
+.user-icon {
+    font-size: 50px;
+    /* increased size */
+    color: #555;
+    margin-right: 15px;
+}
+
+/* Answer content */
+.answer-content {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Username styling */
+.username {
+    font-weight: bold;
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+/* Answer text */
+.answer-content p {
+    margin: 0;
+    font-size: 15px;
+    color: #444;
+    line-height: 1.5;
+}
+.msg {
+    font-weight: bold;
+    margin-top: 8px;
+}
+
+.msg.success {
+    color: green;
+}
+
+.msg.error {
+    color: red;
+}
+.answer-time {
+    font-size: 0.85rem;
+    color: #555;
+    margin-left: 0.5rem;
+}
+.answer-actions {
+    margin-top: 8px;
+    display: flex;
+    gap: 8px;
+}
+
+.edit-btn,
+.delete-btn {
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+
+.edit-btn {
+    background-color: #4caf50;
+    color: white;
+}
+
+.delete-btn {
+    background-color: #f44336;
+    color: white;
+}

@@ -1,0 +1,44 @@
+.about-container {
+    max-width: 500px;
+    margin: 2rem auto;
+    /* padding: 1rem; */
+    /* background: #f8f9fa;
+    border-radius: 10px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    height: 510px; */
+}
+
+.about-title {
+    color: #ff7a00;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.about-heading {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #4a148c;
+    margin-bottom: 1rem;
+}
+
+.about-text {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+.about-btn {
+    background: #ff7a00;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s ease-in-out;
+}
+
+.about-btn:hover {
+    background: #e56a00;
+}

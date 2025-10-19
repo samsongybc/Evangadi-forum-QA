@@ -1,0 +1,30 @@
+*{
+    padding: 0;
+    margin: 0;
+}
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+.app-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    padding: 2rem;
+    background: #f1f3f5;
+    /* min-height: 100vh; */
+}
+
+.form-container {
+    flex: 1;
+}
+@media (min-width: 768px) {
+        .app-container {
+        flex-direction: row;
+        justify-content: center;
+        align-items: flex-start;
+    }
+}

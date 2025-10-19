@@ -1,0 +1,82 @@
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 40px;
+    background: #3B455A;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+/* Hamburger menu */
+.menu-icon {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 20px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.menu-icon span {
+    display: block;
+    height: 2px;
+    width: 100%;
+    background: black;
+    border-radius: 2px;
+}
+
+/* Logo */
+.logo {
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.logo-orange {
+    color: orange;
+}
+
+.logo-black {
+    color: black;
+}
+
+/* Navigation */
+.nav {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.nav a {
+    text-decoration: none;
+    color: black;
+    /* font-size: 14px; */
+    font-weight: 500;
+    color: aliceblue;
+    line-height: 1.2;
+}
+.nav a:hover{
+    text-decoration: underline;
+    text-shadow: #3a55d1;
+    font-weight: bold;
+}
+
+.signin-btn {
+    background: #4f6ef7;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.signin-btn:hover {
+    background: #3a55d1;
+}
