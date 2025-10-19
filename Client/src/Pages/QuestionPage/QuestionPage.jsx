@@ -5,8 +5,8 @@ import { Appstate } from "../Appstate";
 import { useNavigate } from "react-router-dom";
 
 const QuestionPage = () => {
-const navigate = useNavigate();
-const { user, setUser } = useContext(Appstate);
+  const navigate = useNavigate();
+  const { user, setUser } = useContext(Appstate);
 
   const [title, setTitle] = useState("");
   const [tag, setTag] = useState("");
@@ -73,10 +73,17 @@ const { user, setUser } = useContext(Appstate);
         navigate("/home");
       }, 2000);
     } catch (err) {
-      setMessage(err.response?.data?.message || "Failed to post question");
-      setTimeout(() => {
-        navigate("/login");
-      }, 2000);
+      const errorMessage =
+        err.response?.data?.message || "Failed to post question";
+      setMessage(errorMessage);
+
+      // Only redirect to login if it's an authentication error (401 or 403)
+      if (err.response?.status === 401 || err.response?.status === 403) {
+        setTimeout(() => {
+          navigate("/login");
+        }, 2000);
+      }
+      // For other errors, stay on the page so user can try again
     }
   };
 

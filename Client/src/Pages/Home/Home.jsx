@@ -1,11 +1,12 @@
 import React, { useContext, useState, useEffect } from "react";
 import { Appstate } from "../Appstate";
 import "./Home.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import axiosInstance from "../../axiosconfig";
 
 const Home = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, setUser } = useContext(Appstate);
 
   const [questions, setQuestions] = useState([]);
@@ -44,6 +45,12 @@ const Home = () => {
     const fetchQuestions = async () => {
       try {
         const token = localStorage.getItem("token");
+
+        if (!token) {
+          navigate("/login");
+          return;
+        }
+
         const res = await axiosInstance.get("/question", {
           headers: {
             Authorization: "Bearer " + token,
@@ -55,10 +62,19 @@ const Home = () => {
           "Error fetching questions:",
           err.response?.data || err.message
         );
+
+        // If it's an auth error, redirect to login
+        if (err.response?.status === 401) {
+          console.log("Token invalid, redirecting to login");
+          localStorage.removeItem("token");
+          localStorage.removeItem("username");
+          localStorage.removeItem("userid");
+          navigate("/login");
+        }
       }
     };
     fetchQuestions();
-  }, []);
+  }, [user, location.pathname]); // Refresh when user context changes or when navigating to home
 
   const filteredQuestions = questions.filter((q) =>
     q.title.toLowerCase().includes(search.toLowerCase())

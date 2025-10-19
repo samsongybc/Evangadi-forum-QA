@@ -406,12 +406,28 @@ const resetPassword = async (req, res) => {
   if (!email || !otp || !newPassword) {
     return res.status(400).json({ message: "All fields are required" });
   }
-  const passwordRegex = /^(?=.[A-Z])(?=.\d)(?=.[@$!%?&]).{8,}$/;
-
-  if (!passwordRegex.test(newPassword)) {
+  // Password validation
+  if (newPassword.length < 8) {
     return res.status(400).json({
-      message:
-        "Password must be at least 8 characters, include one uppercase letter, one number, and one special character",
+      message: "Password must be at least 8 characters long",
+    });
+  }
+
+  if (!/[A-Z]/.test(newPassword)) {
+    return res.status(400).json({
+      message: "Password must include at least one uppercase letter",
+    });
+  }
+
+  if (!/\d/.test(newPassword)) {
+    return res.status(400).json({
+      message: "Password must include at least one number",
+    });
+  }
+
+  if (!/[@$!%?&]/.test(newPassword)) {
+    return res.status(400).json({
+      message: "Password must include at least one special character (@$!%?&)",
     });
   }
   try {

@@ -105,10 +105,14 @@ async function post_question(req, res) {
       });
     }
 
-    // Insert the question (created_at defaults to CURRENT_TIMESTAMP)
+    // Generate UUID for questionid
+    const crypto = require("crypto");
+    const questionid = crypto.randomUUID();
+
+    // Insert the question with UUID questionid
     const [result] = await dbconnection.query(
-      `INSERT INTO questions (userid, title, tag, description) VALUES (?, ?, ?, ?)`,
-      [userid, title, tag, description]
+      `INSERT INTO questions (questionid, userid, title, tag, description, is_deleted) VALUES (?, ?, ?, ?, ?, ?)`,
+      [questionid, userid, title, tag, description, 0]
     );
 
     // result = {
@@ -134,7 +138,7 @@ async function post_question(req, res) {
        FROM questions
        INNER JOIN users ON questions.userid = users.userid
        WHERE questions.questionid = ?`,
-      [result.insertId]
+      [questionid]
     );
 
     // STEP 2: Result object
@@ -150,7 +154,14 @@ async function post_question(req, res) {
       data: newQuestionRows[0],
     });
   } catch (error) {
-    console.error(error);
+    console.error("Error in post_question:", error);
+    console.error("Error details:", {
+      message: error.message,
+      code: error.code,
+      errno: error.errno,
+      sqlState: error.sqlState,
+      sqlMessage: error.sqlMessage,
+    });
     res.status(500).json({
       status: "error",
       message: "Server error while creating question",

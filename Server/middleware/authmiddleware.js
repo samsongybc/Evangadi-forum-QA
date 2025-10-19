@@ -7,7 +7,7 @@ async function authmiddleware(req, res, next) {
   try {
     const token = authheader.split(" ")[1];
     const { username, userid } = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = {username, userid}
+    req.user = { username, userid };
     next();
   } catch (error) {
     return res.status(401).json({ message: "Unauthorized" });
