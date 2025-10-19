@@ -14,12 +14,14 @@ A full-stack Q&A forum application built with React and Node.js.
 ## Tech Stack
 
 **Frontend:**
+
 - React
 - Vite
 - Axios
 - CSS3
 
 **Backend:**
+
 - Node.js
 - Express.js
 - MySQL2
@@ -31,6 +33,7 @@ A full-stack Q&A forum application built with React and Node.js.
 ### 1. Database Setup (Choose one)
 
 #### Option A: Railway Database (Recommended)
+
 1. Go to [Railway.app](https://railway.app)
 2. Sign up/login
 3. Create a new project
@@ -38,6 +41,7 @@ A full-stack Q&A forum application built with React and Node.js.
 5. Copy the connection details
 
 #### Option B: PlanetScale
+
 1. Go to [PlanetScale.com](https://planetscale.com)
 2. Create a free account
 3. Create a new database
@@ -71,11 +75,13 @@ A full-stack Q&A forum application built with React and Node.js.
 ### 4. Environment Variables
 
 #### Frontend (.env)
+
 ```
 VITE_API_URL=https://your-backend-url.railway.app/api
 ```
 
 #### Backend (.env)
+
 ```
 DB_HOST=your-database-host
 DB_USER=your-database-username
@@ -89,6 +95,7 @@ PORT=5001
 ## Local Development
 
 ### Backend
+
 ```bash
 cd Server
 npm install
@@ -96,6 +103,7 @@ npm run dev
 ```
 
 ### Frontend
+
 ```bash
 cd Client
 npm install
