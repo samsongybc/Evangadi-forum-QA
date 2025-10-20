@@ -23,6 +23,9 @@ if (process.env.CLIENT_URL) {
   allowedOrigins.push(process.env.CLIENT_URL);
 }
 
+// Debug log to verify CORS configuration
+console.log("🔒 CORS Allowed Origins:", allowedOrigins);
+
 app.use(
   cors({
     origin: allowedOrigins,
