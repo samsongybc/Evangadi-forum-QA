@@ -56,11 +56,12 @@ app.use("/api/answer", answerRoutes);
 
 async function start() {
   try {
-    await dbconnection;
-    console.log(" Connected to MySQL2 database!");
+    // Test database connection
+    await dbconnection.query("SELECT NOW()");
+    console.log("✅ Connected to PostgreSQL database (Supabase)!");
 
     const server = app.listen(PORT);
-    console.log(`Server is running on port ${PORT}`);
+    console.log(`🚀 Server is running on port ${PORT}`);
 
     server.on("error", (error) => {
       if (error.code === "EADDRINUSE") {
@@ -78,7 +79,7 @@ async function start() {
       }
     });
   } catch (error) {
-    console.error(" DB connection failed:", error.message);
+    console.error("❌ DB connection failed:", error.message);
     process.exit(1);
   }
 }

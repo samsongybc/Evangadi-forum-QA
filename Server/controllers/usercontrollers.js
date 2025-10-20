@@ -252,24 +252,24 @@ async function register(req, res) {
 
   try {
     // Check username uniqueness
-    const [usernameValidation] = await dbconnection.query(
-      "SELECT * FROM users WHERE username= ?",
+    const usernameValidation = await dbconnection.query(
+      "SELECT * FROM users WHERE username = $1",
       [username]
     );
 
     // Check email uniqueness
-    const [emailValidation] = await dbconnection.query(
-      "SELECT * FROM users WHERE email=?",
+    const emailValidation = await dbconnection.query(
+      "SELECT * FROM users WHERE email = $1",
       [email]
     );
 
-    if (usernameValidation.length > 0) {
+    if (usernameValidation.rows.length > 0) {
       return res
         .status(400)
         .json({ status: "Failed", message: "Username Already Exists" });
     }
 
-    if (emailValidation.length > 0) {
+    if (emailValidation.rows.length > 0) {
       return res
         .status(400)
         .json({ status: "Failed", message: "Email Already in Use" });
@@ -281,7 +281,7 @@ async function register(req, res) {
 
     // Insert new user into database
     await dbconnection.query(
-      "INSERT INTO users (username, firstname, lastname, email, user_password) VALUES (?, ?, ?, ?, ?)",
+      "INSERT INTO users (username, firstname, lastname, email, user_password) VALUES ($1, $2, $3, $4, $5)",
       [username, firstname, lastname, email, hashedPassword]
     );
 
@@ -303,15 +303,15 @@ async function login(req, res) {
   }
 
   try {
-    const [rows] = await dbconnection.query(
-      "SELECT username,userid,user_password FROM users WHERE email = ?",
+    const result = await dbconnection.query(
+      "SELECT username, userid, user_password FROM users WHERE email = $1",
       [email]
     );
 
-    if (rows.length === 0) {
+    if (result.rows.length === 0) {
       return res.status(400).json({ message: "Invalid email or password" });
     }
-    const user = rows[0];
+    const user = result.rows[0];
     const passwordMatch = await bcrypt.compare(
       user_password,
       user.user_password
@@ -321,8 +321,8 @@ async function login(req, res) {
       return res.status(400).json({ message: "Invalid email or password" });
     }
 
-    const username = rows[0].username;
-    const userid = rows[0].userid;
+    const username = result.rows[0].username;
+    const userid = result.rows[0].userid;
 
     const expiresIn = rememberMe ? "30d" : "1d";
 
@@ -354,12 +354,12 @@ const forgotPassword = async (req, res) => {
     if (!email) return res.status(400).json({ message: "Email is required" });
 
     // Check if user exists
-    const [rows] = await dbconnection.query(
-      "SELECT * FROM users WHERE email = ?",
+    const result = await dbconnection.query(
+      "SELECT * FROM users WHERE email = $1",
       [email]
     );
 
-    if (rows.length === 0)
+    if (result.rows.length === 0)
       return res.status(404).json({ message: "Email not found" });
 
     // Generate OTP
@@ -367,7 +367,7 @@ const forgotPassword = async (req, res) => {
 
     // Save OTP + expiration (5 mins)
     await dbconnection.query(
-      "UPDATE users SET reset_otp = ?, otp_expiration = DATE_ADD(NOW(), INTERVAL 5 MINUTE) WHERE email = ?",
+      "UPDATE users SET reset_otp = $1, otp_expiration = NOW() + INTERVAL '5 minutes' WHERE email = $2",
       [otp, email]
     );
 
@@ -432,16 +432,16 @@ const resetPassword = async (req, res) => {
   }
   try {
     // Verify OTP
-    const [user] = await dbconnection.query(
-      "SELECT * FROM users WHERE email = ? AND reset_otp = ?",
+    const result = await dbconnection.query(
+      "SELECT * FROM users WHERE email = $1 AND reset_otp = $2",
       [email, otp]
     );
 
-    if (user.length === 0)
+    if (result.rows.length === 0)
       return res.status(400).json({ message: "Invalid OTP" });
 
     // Check if OTP expired
-    const otpExpiration = new Date(user[0].otp_expiration);
+    const otpExpiration = new Date(result.rows[0].otp_expiration);
     if (otpExpiration < new Date())
       return res.status(400).json({ message: "OTP has expired" });
 
@@ -451,7 +451,7 @@ const resetPassword = async (req, res) => {
 
     // Update password and clear OTP
     await dbconnection.query(
-      "UPDATE users SET user_password = ?, reset_otp = NULL, otp_expiration = NULL WHERE email = ?",
+      "UPDATE users SET user_password = $1, reset_otp = NULL, otp_expiration = NULL WHERE email = $2",
       [hashedPassword, email]
     );
 

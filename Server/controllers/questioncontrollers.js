@@ -4,14 +4,14 @@ const dbconnection = require("../Database/databaseconfig");
 // GET all questions
 async function get_all_questions(req, res) {
   try {
-    const [rows] = await dbconnection.query(
+    const result = await dbconnection.query(
       `SELECT 
          questions.questionid, 
          questions.userid, 
          questions.title, 
          questions.tag,
          questions.description, 
-         DATE_FORMAT(questions.created_at, '%Y-%m-%dT%H:%i:%s') AS created_at,
+         TO_CHAR(questions.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS created_at,
          users.username,
          COUNT(answers.answerid) AS answer_count
        FROM questions
@@ -24,8 +24,8 @@ async function get_all_questions(req, res) {
 
     res.status(200).json({
       status: "success",
-      total_questions: rows.length,
-      data: rows,
+      total_questions: result.rows.length,
+      data: result.rows,
     });
   } catch (error) {
     console.error(error);
@@ -49,22 +49,22 @@ async function get_single_question(req, res) {
   }
 
   try {
-    const [rows] = await dbconnection.query(
+    const result = await dbconnection.query(
       `SELECT 
          questions.questionid, 
          questions.userid, 
          questions.title, 
          questions.tag,
          questions.description, 
-         DATE_FORMAT(questions.created_at, '%Y-%m-%dT%H:%i:%s') AS created_at,
+         TO_CHAR(questions.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS created_at,
          users.username
        FROM questions
        INNER JOIN users ON questions.userid = users.userid
-       WHERE questions.questionid = ? AND questions.is_deleted = 0`,
+       WHERE questions.questionid = $1 AND questions.is_deleted = 0`,
       [questionid]
     );
 
-    if (rows.length === 0) {
+    if (result.rows.length === 0) {
       return res.status(404).json({
         status: "error",
         message: "Question not found or has been deleted",
@@ -73,7 +73,7 @@ async function get_single_question(req, res) {
 
     res.status(200).json({
       status: "success",
-      data: rows[0],
+      data: result.rows[0],
     });
   } catch (error) {
     console.error(error);
@@ -110,57 +110,37 @@ async function post_question(req, res) {
     const questionid = crypto.randomUUID();
 
     // Insert the question with UUID questionid
-    const [result] = await dbconnection.query(
-      `INSERT INTO questions (questionid, userid, title, tag, description, is_deleted) VALUES (?, ?, ?, ?, ?, ?)`,
+    await dbconnection.query(
+      `INSERT INTO questions (questionid, userid, title, tag, description, is_deleted) VALUES ($1, $2, $3, $4, $5, $6)`,
       [questionid, userid, title, tag, description, 0]
     );
 
-    // result = {
-    //   fieldCount: 0,
-    //   affectedRows: 1,        // How many rows were inserted
-    //   insertId: 123,          // ⭐ The auto-generated ID!
-    //   info: '',
-    //   serverStatus: 2,
-    //   warningStatus: 0,
-    //   changedRows: 0
-    // }
-
     // Fetch the newly inserted question with ISO timestamp
-    const [newQuestionRows] = await dbconnection.query(
+    const newQuestion = await dbconnection.query(
       `SELECT 
          questions.questionid, 
          questions.userid, 
          questions.title, 
          questions.tag,
          questions.description, 
-         DATE_FORMAT(questions.created_at, '%Y-%m-%dT%H:%i:%s') AS created_at,
+         TO_CHAR(questions.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS created_at,
          users.username
        FROM questions
        INNER JOIN users ON questions.userid = users.userid
-       WHERE questions.questionid = ?`,
+       WHERE questions.questionid = $1`,
       [questionid]
     );
-
-    // STEP 2: Result object
-    // result = {
-    //   affectedRows: 1,
-    //   insertId: 123, // ⭐ MySQL tells us the new ID!
-    //   // ... other properties
-    // };
 
     res.status(201).json({
       status: "success",
       message: "Question posted successfully",
-      data: newQuestionRows[0],
+      data: newQuestion.rows[0],
     });
   } catch (error) {
     console.error("Error in post_question:", error);
     console.error("Error details:", {
       message: error.message,
       code: error.code,
-      errno: error.errno,
-      sqlState: error.sqlState,
-      sqlMessage: error.sqlMessage,
     });
     res.status(500).json({
       status: "error",
@@ -170,55 +150,6 @@ async function post_question(req, res) {
   }
 }
 
-// UPDATE a question
-// async function update_question(req, res) {
-//   const { questionid } = req.params;
-//   const { title, tag, description } = req.body;
-//   const userid = req.user.userid;
-
-//   try {
-//     const [rows] = await dbconnection.query(
-//       "SELECT * FROM questions WHERE questionid = ? AND is_deleted = 0",
-//       [questionid]
-//     );
-
-//     if (rows.length === 0) {
-//       return res.status(404).json({
-//         status: "fail",
-//         message: "Question not found or already deleted",
-//       });
-//     }
-
-//     if (rows[0].userid !== userid) {
-//       return res.status(403).json({
-//         status: "fail",
-//         message: "You are not allowed to update this question",
-//       });
-//     }
-
-//     await dbconnection.query(
-//       "UPDATE questions SET title = ?, tag = ?, description = ? WHERE questionid = ?",
-//       [
-//         title || rows[0].title,
-//         tag || rows[0].tag,
-//         description || rows[0].description,
-//         questionid,
-//       ]
-//     );
-
-//     return res.json({
-//       status: "success",
-//       message: "Question updated successfully",
-//     });
-//   } catch (error) {
-//     console.error(error);
-//     return res.status(500).json({
-//       status: "fail",
-//       message: "Server error",
-//     });
-//   }
-// }
-
 async function update_question(req, res) {
   const { questionid } = req.params;
   const { title, description, tag } = req.body;
@@ -226,12 +157,12 @@ async function update_question(req, res) {
 
   try {
     //  Check if question exists
-    const [rows] = await dbconnection.query(
-      "SELECT * FROM questions WHERE questionid = ? AND is_deleted = 0",
+    const result = await dbconnection.query(
+      "SELECT * FROM questions WHERE questionid = $1 AND is_deleted = 0",
       [questionid]
     );
 
-    if (rows.length === 0) {
+    if (result.rows.length === 0) {
       return res.status(404).json({
         status: "fail",
         message: "Question not found or already deleted",
@@ -239,7 +170,7 @@ async function update_question(req, res) {
     }
 
     //  Check if user owns this question
-    if (rows[0].userid !== userid) {
+    if (result.rows[0].userid !== userid) {
       return res.status(403).json({
         status: "fail",
         message: "You are not allowed to update this question",
@@ -247,20 +178,15 @@ async function update_question(req, res) {
     }
 
     //  Trim inputs to prevent false "no changes"
-    //  ?? rows[0].title - Nullish Coalescing
-    //  The ?? operator is called "nullish coalescing"
-    // If the left side is null or undefined → use the right side
-    // Otherwise → use the left side
-
-    const newTitle = title?.trim() ?? rows[0].title;
-    const newDescription = description?.trim() ?? rows[0].description;
-    const newTag = tag?.trim() ?? rows[0].tag;
+    const newTitle = title?.trim() ?? result.rows[0].title;
+    const newDescription = description?.trim() ?? result.rows[0].description;
+    const newTag = tag?.trim() ?? result.rows[0].tag;
 
     //  Check if nothing changed
     if (
-      newTitle === rows[0].title &&
-      newDescription === rows[0].description &&
-      newTag === rows[0].tag
+      newTitle === result.rows[0].title &&
+      newDescription === result.rows[0].description &&
+      newTag === result.rows[0].tag
     ) {
       return res.json({
         status: "no_change",
@@ -270,7 +196,7 @@ async function update_question(req, res) {
 
     //  Update only if something changed
     await dbconnection.query(
-      "UPDATE questions SET title = ?, description = ?, tag = ? WHERE questionid = ?",
+      "UPDATE questions SET title = $1, description = $2, tag = $3 WHERE questionid = $4",
       [newTitle, newDescription, newTag, questionid]
     );
 
@@ -293,19 +219,19 @@ async function delete_question(req, res) {
   const userid = req.user.userid;
 
   try {
-    const [rows] = await dbconnection.query(
-      "SELECT * FROM questions WHERE questionid = ? AND is_deleted = 0",
+    const result = await dbconnection.query(
+      "SELECT * FROM questions WHERE questionid = $1 AND is_deleted = 0",
       [questionid]
     );
 
-    if (rows.length === 0) {
+    if (result.rows.length === 0) {
       return res.status(404).json({
         status: "fail",
         message: "Question not found or already deleted",
       });
     }
 
-    if (rows[0].userid !== userid) {
+    if (result.rows[0].userid !== userid) {
       return res.status(403).json({
         status: "fail",
         message: "You are not allowed to delete this question",
@@ -313,7 +239,7 @@ async function delete_question(req, res) {
     }
 
     await dbconnection.query(
-      "UPDATE questions SET is_deleted = 1 WHERE questionid = ?",
+      "UPDATE questions SET is_deleted = 1 WHERE questionid = $1",
       [questionid]
     );
 
