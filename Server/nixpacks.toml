@@ -2,10 +2,10 @@
 nixPkgs = ["nodejs"]
 
 [phases.install]
-cmds = ["npm install"]
+cmds = ["npm ci --production=false"]
 
 [phases.build]
-cmds = ["echo 'Build completed'"]
+cmds = ["echo 'Build completed successfully'"]
 
 [start]
-cmd = "npm start"
+cmd = "node app.js"
