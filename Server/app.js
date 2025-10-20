@@ -2,6 +2,13 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 const PORT = process.env.PORT || 5001;
+
+// Debug logging
+console.log("🔍 Environment:", {
+  NODE_ENV: process.env.NODE_ENV,
+  PORT: PORT,
+  PROVIDED_PORT: process.env.PORT,
+});
 app.use(express.json());
 // app.use(express.urlencoded({ extended: true }));
 
@@ -74,7 +81,10 @@ async function start() {
     console.log("✅ Connected to PostgreSQL database (Supabase)!");
 
     const server = app.listen(PORT, "0.0.0.0", () => {
-      console.log(`🚀 Server is running on port ${PORT}`);
+      console.log(`🚀 Server is running!`);
+      console.log(`   Port: ${PORT}`);
+      console.log(`   Host: 0.0.0.0 (all interfaces)`);
+      console.log(`   Public URL: https://evangadi-forum-qa-production.up.railway.app`);
     });
 
     server.on("error", (error) => {
