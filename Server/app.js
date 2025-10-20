@@ -84,7 +84,9 @@ async function start() {
       console.log(`🚀 Server is running!`);
       console.log(`   Port: ${PORT}`);
       console.log(`   Host: 0.0.0.0 (all interfaces)`);
-      console.log(`   Public URL: https://evangadi-forum-qa-production.up.railway.app`);
+      console.log(
+        `   Public URL: https://evangadi-forum-qa-production.up.railway.app`
+      );
     });
 
     server.on("error", (error) => {
