@@ -1,8 +1,5 @@
 [build]
-builder = "nixpacks"
-buildCommand = "cd Server && npm install"
+builder = "NIXPACKS"
 
 [deploy]
-startCommand = "cd Server && npm start"
-restartPolicyType = "on_failure"
-restartPolicyMaxRetries = 10
+startCommand = "cd Server && node app.js"
