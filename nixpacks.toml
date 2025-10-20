@@ -2,11 +2,11 @@
 nixPkgs = ["nodejs"]
 
 [phases.install]
-cmds = ["cd Server && npm install"]
+cmds = ["cd Server && npm ci"]
 
 [phases.build]
-cmds = ["cd Server && echo 'Build completed'"]
+cmds = ["echo 'Build completed from Server directory'"]
 
 [start]
-cmd = "cd Server && npm start"
+cmd = "cd Server && node app.js"
 
