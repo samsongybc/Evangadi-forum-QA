@@ -105,11 +105,21 @@ async function update_answer(req, res) {
     );
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ status: "fail", message: "Answer not found or already deleted" });
+      return res
+        .status(404)
+        .json({
+          status: "fail",
+          message: "Answer not found or already deleted",
+        });
     }
 
     if (result.rows[0].userid !== userid) {
-      return res.status(403).json({ status: "fail", message: "You are not allowed to update this answer" });
+      return res
+        .status(403)
+        .json({
+          status: "fail",
+          message: "You are not allowed to update this answer",
+        });
     }
 
     await dbconnection.query(
@@ -117,7 +127,10 @@ async function update_answer(req, res) {
       [answer || result.rows[0].answer, answerid]
     );
 
-    return res.json({ status: "success", message: "Answer updated successfully" });
+    return res.json({
+      status: "success",
+      message: "Answer updated successfully",
+    });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ status: "fail", message: "Server error" });
@@ -136,11 +149,21 @@ async function delete_answer(req, res) {
     );
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ status: "fail", message: "Answer not found or already deleted" });
+      return res
+        .status(404)
+        .json({
+          status: "fail",
+          message: "Answer not found or already deleted",
+        });
     }
 
     if (result.rows[0].userid !== userid) {
-      return res.status(403).json({ status: "fail", message: "You are not allowed to delete this answer" });
+      return res
+        .status(403)
+        .json({
+          status: "fail",
+          message: "You are not allowed to delete this answer",
+        });
     }
 
     await dbconnection.query(
@@ -148,13 +171,15 @@ async function delete_answer(req, res) {
       [answerid]
     );
 
-    return res.json({ status: "success", message: "Answer deleted successfully" });
+    return res.json({
+      status: "success",
+      message: "Answer deleted successfully",
+    });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ status: "fail", message: "Server error" });
   }
 }
-
 
 module.exports = {
   get_answers,
