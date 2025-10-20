@@ -37,6 +37,15 @@ app.use(
   })
 );
 
+// Health check endpoint (before any other routes)
+app.get("/", (req, res) => {
+  res.json({ status: "ok", message: "Server is running" });
+});
+
+app.get("/health", (req, res) => {
+  res.json({ status: "healthy", timestamp: new Date().toISOString() });
+});
+
 // database connection
 const dbconnection = require("./Database/databaseconfig");
 
